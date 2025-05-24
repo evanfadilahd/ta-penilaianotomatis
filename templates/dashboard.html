@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #181818;
+      color: #222;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 240px;
+      background: #222;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0;
+    }
+    .sidebar .top {
+      padding: 32px 0 0 0;
+    }
+    .sidebar h2 {
+      margin: 0 0 32px 32px;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+    .nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .nav li {
+      display: flex;
+      align-items: center;
+      padding: 0 0 0 32px;
+      height: 48px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+    .nav li.active, .nav li:hover {
+      background: #ff4d4f;
+      color: #fff;
+    }
+    .nav li .icon {
+      margin-right: 16px;
+      font-size: 1.2em;
+    }
+    .sidebar .bottom {
+      margin-bottom: 32px;
+      padding-left: 32px;
+    }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      color: #ff4d4f;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0;
+    }
+    .logout-btn .icon {
+      margin-right: 10px;
+      font-size: 1.3em;
+    }
+    .main {
+      flex: 1;
+      background: #fafafa;
+      padding: 0 40px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 32px 0 16px 0;
+      position: sticky;
+      top: 0;
+      background: #fafafa;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .header-title {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .user-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #222;
+    }
+    .widgets {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+    .widget-card {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 70px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #ff4d4f;
+      cursor: pointer;
+      border: 2px solid #ff4d4f;
+      transition: box-shadow 0.2s, background 0.2s, color 0.2s, border 0.2s, transform 0.1s;
+      text-decoration: none;
+      outline: none;
+    }
+    .widget-card:hover, .widget-card:focus {
+      background: #ff4d4f;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(255,77,79,0.12);
+      border: 2px solid #ff4d4f;
+      transform: translateY(-2px) scale(1.03);
+      text-decoration: none;
+    }
+    .status-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      padding: 32px 32px 24px 32px;
+      max-width: 420px;
+      min-width: 320px;
+    }
+    .status-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+    .status-progress {
+      font-size: 2.5rem;
+      color: #ff4d4f;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 7px;
+      background: #ececec;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #ff4d4f;
+      width: 75%;
+      border-radius: 4px 0 0 4px;
+      transition: width 0.4s;
+    }
+    .status-timer {
+      font-size: 1.2rem;
+      color: #222;
+      font-family: 'Courier New', Courier, monospace;
+      margin-top: 8px;
+    }
+    @media (max-width: 900px) {
+      .widgets {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .main {
+        padding: 0 10px;
+      }
+    }
+    .main-content {
+      margin-top: 90px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="top">
+        <h2>Automatic Assesment</h2>
+        <ul class="nav">
+          <li class="active"><span class="icon">🏠</span>Dashboard</li>
+          <li><span class="icon">⬆️</span>Upload Tugas Baru</li>
+          <li><span class="icon">📄</span>Hasil Ringkasan</li>
+          <li><span class="icon">📊</span>Statistika Processing</li>
+        </ul>
+      </div>
+      <div class="bottom">
+        <button class="logout-btn"><span class="icon">⏻</span>Logout</button>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="header">
+        <span class="header-title">Dashboard Page</span>
+        <div class="user-info">
+          <div class="user-avatar">👤</div>
+          <span class="user-name">Nama Pengguna</span>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="widgets">
+          <a href="#" class="widget-card" title="Lihat tugas terakhir">Tugas Terakhir</a>
+          <a href="#" class="widget-card" title="Upload tugas baru">Upload Tugas Baru</a>
+        </div>
+        <section class="status-card">
+          <div class="status-title">Status Tugas Terakhir</div>
+          <div class="status-progress">75%</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar"></div>
+          </div>
+          <div class="status-timer">00:03:25</div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html> 
