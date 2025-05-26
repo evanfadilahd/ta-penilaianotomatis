@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hasil Ringkasan</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #181818;
+      color: #222;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 240px;
+      background: #222;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0;
+    }
+    .sidebar .top {
+      padding: 32px 0 0 0;
+    }
+    .sidebar h2 {
+      margin: 0 0 32px 32px;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+    .nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .nav li {
+      display: flex;
+      align-items: center;
+      padding: 0 0 0 32px;
+      height: 48px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+    .nav li.active, .nav li:hover {
+      background: #ff4d4f;
+      color: #fff;
+    }
+    .nav li .icon {
+      margin-right: 16px;
+      font-size: 1.2em;
+    }
+    .sidebar .bottom {
+      margin-bottom: 32px;
+      padding-left: 32px;
+    }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      color: #ff4d4f;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0;
+    }
+    .logout-btn .icon {
+      margin-right: 10px;
+      font-size: 1.3em;
+    }
+    .main {
+      flex: 1;
+      background: #fafafa;
+      padding: 0 40px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 32px 0 16px 0;
+      position: sticky;
+      top: 0;
+      background: #fafafa;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .header-title {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .user-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #222;
+    }
+    .main-content {
+      margin-top: 90px;
+      max-width: 900px;
+    }
+    .summary-list {
+      margin-top: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .summary-item {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      padding: 24px 24px 20px 24px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .summary-info {
+      flex: 1;
+    }
+    .summary-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #222;
+    }
+    .summary-date {
+      font-size: 1rem;
+      color: #666;
+    }
+    .summary-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .btn-detail {
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 10px 22px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .btn-detail:hover, .btn-detail:focus {
+      background: #444;
+    }
+    .btn-stat {
+      background: #d9363e;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 10px 22px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(255,77,79,0.10);
+    }
+    .btn-stat:hover, .btn-stat:focus {
+      background: #ff4d4f;
+    }
+    /* Modal Styles */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.55);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-bg.active {
+      display: flex;
+    }
+    .modal {
+      background: #232323;
+      color: #fff;
+      border-radius: 16px;
+      max-width: 540px;
+      width: 95vw;
+      padding: 36px 32px 24px 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      font-size: 2rem;
+      color: #fff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+      line-height: 1;
+    }
+    .modal-section {
+      margin-bottom: 22px;
+    }
+    .modal-section:not(:last-child) {
+      border-bottom: 1.5px solid #444;
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    .modal-filename {
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: #ff4d4f;
+      margin-bottom: 6px;
+    }
+    .modal-label {
+      font-size: 1.08rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+    .modal-summary {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .modal-grading {
+      font-size: 1.05rem;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .modal-download {
+      background: #ff4d4f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 14px 44px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(255,77,79,0.08);
+      margin-top: 18px;
+      margin-bottom: 2px;
+      display: block;
+      width: 100%;
+    }
+    .modal-download:hover, .modal-download:focus {
+      background: #d9363e;
+      box-shadow: 0 4px 16px rgba(255,77,79,0.12);
+    }
+    @media (max-width: 900px) {
+      .main-content {
+        max-width: 100%;
+      }
+      .summary-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="top">
+        <h2>Automatic Assesment</h2>
+        <ul class="nav">
+          <li><span class="icon">🏠</span>Dashboard</li>
+          <li><span class="icon">⬆️</span>Upload Tugas Baru</li>
+          <li class="active"><span class="icon">📄</span>Hasil Ringkasan</li>
+          <li><span class="icon">📊</span>Statistika Processing</li>
+        </ul>
+      </div>
+      <div class="bottom">
+        <button class="logout-btn"><span class="icon">⏻</span>Logout</button>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="header">
+        <span class="header-title">Hasil Ringkasan</span>
+        <div class="user-info">
+          <div class="user-avatar">👤</div>
+          <span class="user-name">Nama Pengguna</span>
+        </div>
+      </div>
+      <div class="main-content">
+        <ul class="summary-list">
+          <li class="summary-item">
+            <div class="summary-info">
+              <div class="summary-title">Nama Matkul/Tugas</div>
+              <div class="summary-date">April 24, 2024 09:15 AM</div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn-detail" onclick="openModal()">Lihat Detail</button>
+              <button class="btn-stat">Statistika</button>
+            </div>
+          </li>
+          <li class="summary-item">
+            <div class="summary-info">
+              <div class="summary-title">Nama Matkul/Tugas</div>
+              <div class="summary-date">April 24, 2024 09:15 AM</div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn-detail" onclick="openModal()">Lihat Detail</button>
+              <button class="btn-stat">Statistika</button>
+            </div>
+          </li>
+          <li class="summary-item">
+            <div class="summary-info">
+              <div class="summary-title">Nama Matkul/Tugas</div>
+              <div class="summary-date">April 24, 2024 09:15 AM</div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn-detail" onclick="openModal()">Lihat Detail</button>
+              <button class="btn-stat">Statistika</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- Modal -->
+      <div class="modal-bg" id="modalBg">
+        <div class="modal">
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+          <div class="modal-title">Hasil Ringkasan Beberapa Mahasiswa</div>
+          <div class="modal-section">
+            <div class="modal-filename">Mahasiswa_1.docx</div>
+            <div class="modal-label">Generated Summary:</div>
+            <div class="modal-summary">What can A bird do? Apa kemampuan yang  bisa dilakukan oleh monyet?jawabannya memanjat dan meloncat setinggi apapun pohon dan bangunan tanpa ada rasa takut, jika mereka protes maka mereka semua akan mati. Kemampuan hewan bersifat instinktif sedangkan kemampuan manusia bersifat potensial.</div>
+            <div class="modal-label">Grading Result</div>
+            <div class="modal-grading">Similarity Percentage: 65.48%<br>Response Category: Good<br>Final Grade (Scale 1–5): 4</div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-filename">Mahasiswa_2.docx</div>
+            <div class="modal-label">Generated Summary:</div>
+            <div class="modal-summary">What can A bird do? Apa kemampuan yang  bisa dilakukan oleh monyet?jawabannya memanjat dan meloncat setinggi apapun pohon dan bangunan tanpa ada rasa takut, jika mereka protes maka mereka semua akan mati. Kemampuan hewan bersifat instinktif sedangkan kemampuan manusia bersifat potensial.</div>
+            <div class="modal-label">Grading Result</div>
+            <div class="modal-grading">Similarity Percentage: 72.10%<br>Response Category: Excellent<br>Final Grade (Scale 1–5): 5</div>
+          </div>
+          <button class="modal-download">Download Ringkasan (.xlsx)</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    function openModal() {
+      document.getElementById('modalBg').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modalBg').classList.remove('active');
+    }
+    // Optional: Close modal on ESC key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html> 

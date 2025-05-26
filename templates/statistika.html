@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistika</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #181818;
+      color: #222;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 240px;
+      background: #222;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0;
+    }
+    .sidebar .top {
+      padding: 32px 0 0 0;
+    }
+    .sidebar h2 {
+      margin: 0 0 32px 32px;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+    .nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .nav li {
+      display: flex;
+      align-items: center;
+      padding: 0 0 0 32px;
+      height: 48px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+    .nav li.active, .nav li:hover {
+      background: #ff4d4f;
+      color: #fff;
+    }
+    .nav li .icon {
+      margin-right: 16px;
+      font-size: 1.2em;
+    }
+    .sidebar .bottom {
+      margin-bottom: 32px;
+      padding-left: 32px;
+    }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      color: #ff4d4f;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0;
+    }
+    .logout-btn .icon {
+      margin-right: 10px;
+      font-size: 1.3em;
+    }
+    .main {
+      flex: 1;
+      background: #fafafa;
+      padding: 0 40px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 32px 0 16px 0;
+      position: sticky;
+      top: 0;
+      background: #fafafa;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .header-title {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .user-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #222;
+    }
+    .main-content {
+      margin-top: 90px;
+      max-width: 900px;
+    }
+    .stat-total {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .stat-list {
+      margin-top: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .stat-item {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      padding: 20px 24px 18px 24px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .stat-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-filename {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: #222;
+    }
+    .stat-manual {
+      font-size: 1.05rem;
+      color: #666;
+    }
+    .stat-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .btn-show {
+      background: #fff;
+      color: #222;
+      border: 1.5px solid #bbb;
+      border-radius: 7px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 10px 22px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, color 0.2s, border 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .btn-show:hover, .btn-show:focus {
+      background: #ff4d4f;
+      color: #fff;
+      border: 1.5px solid #ff4d4f;
+    }
+    /* Modal Styles */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.55);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-bg.active {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      color: #222;
+      border-radius: 16px;
+      max-width: 900px;
+      width: 98vw;
+      padding: 36px 32px 24px 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      position: relative;
+      max-height: 92vh;
+      overflow-y: auto;
+      display: flex;
+      gap: 32px;
+    }
+    .modal-left {
+      flex: 1.1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-right: 1.5px solid #eee;
+      padding-right: 24px;
+      min-width: 220px;
+    }
+    .modal-scatter {
+      width: 220px;
+      height: 180px;
+      background: #fafafa;
+      border: 1.5px solid #eee;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+      font-size: 1.1rem;
+    }
+    .modal-filename {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 2px;
+    }
+    .modal-manual {
+      font-size: 1.05rem;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .modal-right {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      font-size: 2rem;
+      color: #222;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+      line-height: 1;
+    }
+    .modal-proses-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .modal-proses-tab {
+      background: #fafafa;
+      border: 1.5px solid #eee;
+      color: #222;
+      border-radius: 7px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+    }
+    .modal-proses-tab.active, .modal-proses-tab:hover {
+      background: #ff4d4f;
+      color: #fff;
+      border: 1.5px solid #ff4d4f;
+    }
+    .modal-proses-content {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 18px 18px 12px 18px;
+      border: 1.5px solid #eee;
+      margin-bottom: 10px;
+    }
+    .modal-label {
+      font-size: 1.08rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #222;
+    }
+    .modal-summary {
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      color: #222;
+    }
+    .modal-grading {
+      font-size: 1.05rem;
+      color: #222;
+      margin-bottom: 6px;
+    }
+    .modal-nav-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .modal-nav-btn {
+      background: #ff4d4f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 12px 32px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(255,77,79,0.08);
+    }
+    .modal-nav-btn:disabled {
+      background: #eee;
+      color: #bbb;
+      cursor: not-allowed;
+    }
+    @media (max-width: 1100px) {
+      .modal {
+        flex-direction: column;
+        gap: 18px;
+        max-width: 98vw;
+      }
+      .modal-left {
+        border-right: none;
+        border-bottom: 1.5px solid #eee;
+        padding-right: 0;
+        padding-bottom: 18px;
+      }
+    }
+    @media (max-width: 900px) {
+      .main-content {
+        max-width: 100%;
+      }
+      .stat-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="top">
+        <h2>Automatic Assesment</h2>
+        <ul class="nav">
+          <li><span class="icon">🏠</span>Dashboard</li>
+          <li><span class="icon">⬆️</span>Upload Tugas Baru</li>
+          <li><span class="icon">📄</span>Hasil Ringkasan</li>
+          <li class="active"><span class="icon">📊</span>Statistika Processing</li>
+        </ul>
+      </div>
+      <div class="bottom">
+        <button class="logout-btn"><span class="icon">⏻</span>Logout</button>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="header">
+        <span class="header-title">Statistika</span>
+        <div class="user-info">
+          <div class="user-avatar">👤</div>
+          <span class="user-name">Nama Pengguna</span>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="stat-total">Total Ringkasan Tugas: 62</div>
+        <ul class="stat-list">
+          <li class="stat-item">
+            <div class="stat-info">
+              <span class="stat-filename">Mahasiswa 1.docx</span> – <span class="stat-manual">Resume Mahasiswa 1.docx</span>
+            </div>
+            <div class="stat-actions">
+              <button class="btn-show" onclick="openModal(0)">Show Details</button>
+            </div>
+          </li>
+          <li class="stat-item">
+            <div class="stat-info">
+              <span class="stat-filename">Mahasiswa 2.docx</span> – <span class="stat-manual">Resume Mahasiswa 2.docx</span>
+            </div>
+            <div class="stat-actions">
+              <button class="btn-show" onclick="openModal(1)">Show Details</button>
+            </div>
+          </li>
+          <li class="stat-item">
+            <div class="stat-info">
+              <span class="stat-filename">Mahasiswa 3.docx</span> – <span class="stat-manual">Resume Mahasiswa 3.docx</span>
+            </div>
+            <div class="stat-actions">
+              <button class="btn-show" onclick="openModal(2)">Show Details</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- Modal -->
+      <div class="modal-bg" id="modalBg">
+        <div class="modal">
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+          <div class="modal-left">
+            <div class="modal-scatter">[Scatterplot Placeholder]</div>
+            <div class="modal-filename" id="modalFilename">Mahasiswa 1.docx</div>
+            <div class="modal-manual" id="modalManual">Resume Mahasiswa 1.docx</div>
+          </div>
+          <div class="modal-right">
+            <div class="modal-title">Proses Ringkasan</div>
+            <div class="modal-proses-tabs" id="modalProsesTabs">
+              <button class="modal-proses-tab active" onclick="showProses(0)">Proses 1</button>
+              <button class="modal-proses-tab" onclick="showProses(1)">Proses 2</button>
+              <button class="modal-proses-tab" onclick="showProses(2)">Proses 3</button>
+            </div>
+            <div class="modal-proses-content" id="modalProsesContent">
+              <div class="modal-label">Generated Summary</div>
+              <div class="modal-summary">“What can A bird do? Apa kemampuan yang bisa dilakukan oleh monyet? jawabannya memanjat dan meloncat setinggi apapun pohon dan bangunan tanpa ada rasa takut, jika mereka protes maka mereka semua akan mati. Kemampuan hewan bersifat instinktif sedangkan kemampuan manusia bersifat potensial.”</div>
+              <div class="modal-label">Grading Result</div>
+              <div class="modal-grading">Similarity Percentage: 65.48%<br>Response Category: Good<br>Final Grade (Scale 1–5): 4</div>
+            </div>
+            <div class="modal-nav-btns">
+              <button class="modal-nav-btn" id="prevBtn" onclick="prevFile()" disabled>Previous</button>
+              <button class="modal-nav-btn" id="nextBtn" onclick="nextFile()">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    // Example data for modal navigation
+    const files = [
+      {
+        filename: 'Mahasiswa 1.docx',
+        manual: 'Resume Mahasiswa 1.docx',
+        proses: [
+          {
+            summary: 'Generated summary for Mahasiswa 1 - Proses 1.',
+            grading: 'Similarity Percentage: 65.48%<br>Response Category: Good<br>Final Grade (Scale 1–5): 4'
+          },
+          {
+            summary: 'Generated summary for Mahasiswa 1 - Proses 2.',
+            grading: 'Similarity Percentage: 70.12%<br>Response Category: Good<br>Final Grade (Scale 1–5): 4'
+          },
+          {
+            summary: 'Generated summary for Mahasiswa 1 - Proses 3.',
+            grading: 'Similarity Percentage: 72.10%<br>Response Category: Excellent<br>Final Grade (Scale 1–5): 5'
+          }
+        ]
+      },
+      {
+        filename: 'Mahasiswa 2.docx',
+        manual: 'Resume Mahasiswa 2.docx',
+        proses: [
+          {
+            summary: 'Generated summary for Mahasiswa 2 - Proses 1.',
+            grading: 'Similarity Percentage: 60.00%<br>Response Category: Fair<br>Final Grade (Scale 1–5): 3'
+          },
+          {
+            summary: 'Generated summary for Mahasiswa 2 - Proses 2.',
+            grading: 'Similarity Percentage: 68.00%<br>Response Category: Good<br>Final Grade (Scale 1–5): 4'
+          },
+          {
+            summary: 'Generated summary for Mahasiswa 2 - Proses 3.',
+            grading: 'Similarity Percentage: 75.00%<br>Response Category: Excellent<br>Final Grade (Scale 1–5): 5'
+          }
+        ]
+      },
+      {
+        filename: 'Mahasiswa 3.docx',
+        manual: 'Resume Mahasiswa 3.docx',
+        proses: [
+          {
+            summary: 'Generated summary for Mahasiswa 3 - Proses 1.',
+            grading: 'Similarity Percentage: 55.00%<br>Response Category: Fair<br>Final Grade (Scale 1–5): 3'
+          },
+          {
+            summary: 'Generated summary for Mahasiswa 3 - Proses 2.',
+            grading: 'Similarity Percentage: 65.00%<br>Response Category: Good<br>Final Grade (Scale 1–5): 4'
+          },
+          {
+            summary: 'Generated summary for Mahasiswa 3 - Proses 3.',
+            grading: 'Similarity Percentage: 80.00%<br>Response Category: Excellent<br>Final Grade (Scale 1–5): 5'
+          }
+        ]
+      }
+    ];
+    let currentFile = 0;
+    let currentProses = 0;
+    function openModal(idx) {
+      currentFile = idx;
+      currentProses = 0;
+      updateModal();
+      document.getElementById('modalBg').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modalBg').classList.remove('active');
+    }
+    function updateModal() {
+      const file = files[currentFile];
+      document.getElementById('modalFilename').textContent = file.filename;
+      document.getElementById('modalManual').textContent = file.manual;
+      // Update proses tabs
+      const tabs = document.getElementById('modalProsesTabs').children;
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.toggle('active', i === currentProses);
+      }
+      // Update proses content
+      const proses = file.proses[currentProses];
+      document.getElementById('modalProsesContent').innerHTML = `
+        <div class="modal-label">Generated Summary</div>
+        <div class="modal-summary">${proses.summary}</div>
+        <div class="modal-label">Grading Result</div>
+        <div class="modal-grading">${proses.grading}</div>
+      `;
+      // Update nav buttons
+      document.getElementById('prevBtn').disabled = currentFile === 0;
+      document.getElementById('nextBtn').disabled = currentFile === files.length - 1;
+    }
+    function showProses(idx) {
+      currentProses = idx;
+      updateModal();
+    }
+    function prevFile() {
+      if (currentFile > 0) {
+        currentFile--;
+        currentProses = 0;
+        updateModal();
+      }
+    }
+    function nextFile() {
+      if (currentFile < files.length - 1) {
+        currentFile++;
+        currentProses = 0;
+        updateModal();
+      }
+    }
+    // Optional: Close modal on ESC key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html> 

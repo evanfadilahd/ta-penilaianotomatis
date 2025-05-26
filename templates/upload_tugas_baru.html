@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Tugas Baru</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #181818;
+      color: #222;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 240px;
+      background: #222;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0;
+    }
+    .sidebar .top {
+      padding: 32px 0 0 0;
+    }
+    .sidebar h2 {
+      margin: 0 0 32px 32px;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+    .nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .nav li {
+      display: flex;
+      align-items: center;
+      padding: 0 0 0 32px;
+      height: 48px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+    .nav li.active, .nav li:hover {
+      background: #ff4d4f;
+      color: #fff;
+    }
+    .nav li .icon {
+      margin-right: 16px;
+      font-size: 1.2em;
+    }
+    .sidebar .bottom {
+      margin-bottom: 32px;
+      padding-left: 32px;
+    }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      color: #ff4d4f;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0;
+    }
+    .logout-btn .icon {
+      margin-right: 10px;
+      font-size: 1.3em;
+    }
+    .main {
+      flex: 1;
+      background: #fafafa;
+      padding: 0 40px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 32px 0 16px 0;
+      position: sticky;
+      top: 0;
+      background: #fafafa;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .header-title {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .user-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #222;
+    }
+    .main-content {
+      margin-top: 90px;
+      max-width: 900px;
+    }
+    .form-group {
+      margin-bottom: 28px;
+    }
+    .form-label {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 8px;
+      border: 1.5px solid #e0e0e0;
+      font-size: 1.1rem;
+      background: #fff;
+      margin-bottom: 8px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .form-input:focus {
+      border: 1.5px solid #ff4d4f;
+    }
+    .upload-section {
+      margin-bottom: 32px;
+    }
+    .upload-label {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .upload-boxes {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 24px;
+    }
+    .upload-box {
+      flex: 1;
+      min-width: 220px;
+      min-height: 180px;
+      border: 2px dashed #e0e0e0;
+      border-radius: 12px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: border 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .upload-box:hover, .upload-box:focus {
+      border: 2px dashed #ff4d4f;
+      box-shadow: 0 4px 16px rgba(255,77,79,0.08);
+    }
+    .upload-icon {
+      font-size: 2.2rem;
+      color: #ff4d4f;
+      margin-bottom: 10px;
+    }
+    .upload-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 4px;
+    }
+    .upload-desc {
+      font-size: 1rem;
+      color: #666;
+    }
+    .submit-btn {
+      background: #ff4d4f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      padding: 14px 44px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(255,77,79,0.08);
+      margin-top: 10px;
+      margin-bottom: 30px;
+      display: block;
+    }
+    .submit-btn:hover, .submit-btn:focus {
+      background: #d9363e;
+      box-shadow: 0 4px 16px rgba(255,77,79,0.12);
+    }
+    @media (max-width: 900px) {
+      .main-content {
+        max-width: 100%;
+      }
+      .upload-boxes {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="top">
+        <h2>Automatic Assesment</h2>
+        <ul class="nav">
+          <li><span class="icon">🏠</span>Dashboard</li>
+          <li class="active"><span class="icon">⬆️</span>Upload Tugas Baru</li>
+          <li><span class="icon">📄</span>Hasil Ringkasan</li>
+          <li><span class="icon">📊</span>Statistika Processing</li>
+        </ul>
+      </div>
+      <div class="bottom">
+        <button class="logout-btn"><span class="icon">⏻</span>Logout</button>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="header">
+        <span class="header-title">Upload Tugas Baru</span>
+        <div class="user-info">
+          <div class="user-avatar">👤</div>
+          <span class="user-name">Nama Pengguna</span>
+        </div>
+      </div>
+      <div class="main-content">
+        <form>
+          <div class="form-group">
+            <label class="form-label" for="nama-tugas">Nama Matkul/Tugas</label>
+            <input class="form-input" type="text" id="nama-tugas" name="nama-tugas" placeholder="Masukkan nama matkul atau tugas" required>
+          </div>
+          <div class="upload-section">
+            <label class="upload-label">Tugas Mahasiswa</label>
+            <div class="upload-boxes">
+              <label class="upload-box" tabindex="0">
+                <span class="upload-icon">⬆️</span>
+                <span class="upload-title">Upload files</span>
+                <span class="upload-desc">or drag and drop</span>
+                <input type="file" name="tugas-mahasiswa" multiple style="display:none">
+              </label>
+              <label class="upload-box" tabindex="0">
+                <span class="upload-icon">⬆️</span>
+                <span class="upload-title">Kunci Jawaban</span>
+                <span class="upload-desc">or drag and drop</span>
+                <input type="file" name="kunci-jawaban" style="display:none">
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="submit-btn">Submit</button>
+        </form>
+      </div>
+    </main>
+  </div>
+</body>
+</html> 

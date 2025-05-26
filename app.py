@@ -97,5 +97,17 @@ def index():
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/upload', methods=['GET'])
+def upload():
+    return render_template('upload_tugas_baru.html')
+
+@app.route('/history', methods=['GET'])
+def history():
+    return render_template('hasil_ringkasan.html')
+
+@app.route('/statistic', methods=['GET'])
+def statistic():
+    return render_template('statistika.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
