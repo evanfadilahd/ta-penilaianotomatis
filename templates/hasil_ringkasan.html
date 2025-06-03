@@ -38,21 +38,29 @@
       margin: 0;
     }
     .nav li {
-      display: flex;
-      align-items: center;
+      display: block;
       padding: 0 0 0 32px;
       height: 48px;
       cursor: pointer;
       font-size: 1.1rem;
       transition: background 0.2s;
-    }
-    .nav li.active, .nav li:hover {
-      background: #ff4d4f;
       color: #fff;
     }
-    .nav li .icon {
-      margin-right: 16px;
-      font-size: 1.2em;
+    .nav li.active {
+      font-weight: bold;
+      color: #fff;
+      background: none;
+    }
+    .nav li a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      height: 100%;
+      line-height: 48px;
+    }
+    .nav li a:hover {
+      text-decoration: underline;
     }
     .sidebar .bottom {
       margin-bottom: 32px;
@@ -296,14 +304,16 @@
       <div class="top">
         <h2>Automatic Assesment</h2>
         <ul class="nav">
-          <li><span class="icon">🏠</span>Dashboard</li>
-          <li><span class="icon">⬆️</span>Upload Tugas Baru</li>
-          <li class="active"><span class="icon">📄</span>Hasil Ringkasan</li>
-          <li><span class="icon">📊</span>Statistika Processing</li>
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/upload">Upload Tugas Baru</a></li>
+          <li class="active"><a href="/history">Hasil Ringkasan</a></li>
+          <li><a href="/statistic">Statistika Processing</a></li>
         </ul>
       </div>
       <div class="bottom">
-        <button class="logout-btn"><span class="icon">⏻</span>Logout</button>
+        <form method="POST" action="/logout">
+          <button class="logout-btn" type="submit"><span class="icon">⏻</span>Logout</button>
+        </form>
       </div>
     </aside>
     <main class="main">
@@ -311,75 +321,57 @@
         <span class="header-title">Hasil Ringkasan</span>
         <div class="user-info">
           <div class="user-avatar">👤</div>
-          <span class="user-name">Nama Pengguna</span>
+          <span class="user-name">{{ user_name }}</span>
         </div>
       </div>
       <div class="main-content">
         <ul class="summary-list">
+          {% for s in summaries %}
           <li class="summary-item">
             <div class="summary-info">
-              <div class="summary-title">Nama Matkul/Tugas</div>
-              <div class="summary-date">April 24, 2024 09:15 AM</div>
+              <div class="summary-title">{{ s.student_name }}</div>
+              <div class="summary-date">{{ s.uploaded_at }}</div>
             </div>
             <div class="summary-actions">
-              <button class="btn-detail" onclick="openModal()">Lihat Detail</button>
-              <button class="btn-stat">Statistika</button>
+              <button class="btn-detail" onclick="openModal({{ loop.index0 }})">Lihat Detail</button>
+              {% if s.summary_file %}
+                <a class="btn-stat" href="/uploads/{{ s.summary_file }}" download>Download Ringkasan</a>
+              {% endif %}
             </div>
           </li>
-          <li class="summary-item">
-            <div class="summary-info">
-              <div class="summary-title">Nama Matkul/Tugas</div>
-              <div class="summary-date">April 24, 2024 09:15 AM</div>
-            </div>
-            <div class="summary-actions">
-              <button class="btn-detail" onclick="openModal()">Lihat Detail</button>
-              <button class="btn-stat">Statistika</button>
-            </div>
-          </li>
-          <li class="summary-item">
-            <div class="summary-info">
-              <div class="summary-title">Nama Matkul/Tugas</div>
-              <div class="summary-date">April 24, 2024 09:15 AM</div>
-            </div>
-            <div class="summary-actions">
-              <button class="btn-detail" onclick="openModal()">Lihat Detail</button>
-              <button class="btn-stat">Statistika</button>
-            </div>
-          </li>
+          {% endfor %}
         </ul>
       </div>
       <!-- Modal -->
       <div class="modal-bg" id="modalBg">
         <div class="modal">
           <button class="modal-close" onclick="closeModal()">&times;</button>
-          <div class="modal-title">Hasil Ringkasan Beberapa Mahasiswa</div>
-          <div class="modal-section">
-            <div class="modal-filename">Mahasiswa_1.docx</div>
-            <div class="modal-label">Generated Summary:</div>
-            <div class="modal-summary">What can A bird do? Apa kemampuan yang  bisa dilakukan oleh monyet?jawabannya memanjat dan meloncat setinggi apapun pohon dan bangunan tanpa ada rasa takut, jika mereka protes maka mereka semua akan mati. Kemampuan hewan bersifat instinktif sedangkan kemampuan manusia bersifat potensial.</div>
-            <div class="modal-label">Grading Result</div>
-            <div class="modal-grading">Similarity Percentage: 65.48%<br>Response Category: Good<br>Final Grade (Scale 1–5): 4</div>
-          </div>
-          <div class="modal-section">
-            <div class="modal-filename">Mahasiswa_2.docx</div>
-            <div class="modal-label">Generated Summary:</div>
-            <div class="modal-summary">What can A bird do? Apa kemampuan yang  bisa dilakukan oleh monyet?jawabannya memanjat dan meloncat setinggi apapun pohon dan bangunan tanpa ada rasa takut, jika mereka protes maka mereka semua akan mati. Kemampuan hewan bersifat instinktif sedangkan kemampuan manusia bersifat potensial.</div>
-            <div class="modal-label">Grading Result</div>
-            <div class="modal-grading">Similarity Percentage: 72.10%<br>Response Category: Excellent<br>Final Grade (Scale 1–5): 5</div>
-          </div>
-          <button class="modal-download">Download Ringkasan (.xlsx)</button>
+          <div class="modal-title">Hasil Ringkasan Mahasiswa</div>
+          <div id="modalContent"></div>
         </div>
       </div>
     </main>
   </div>
   <script>
-    function openModal() {
+    const summaries = {{ summaries|tojson }};
+    function openModal(idx) {
+      const s = summaries[idx];
+      let html = `<div class='modal-section'>`;
+      html += `<div class='modal-filename'>${s.student_name}</div>`;
+      html += `<div class='modal-label'>Generated Summary:</div>`;
+      html += `<div class='modal-summary'>${s.summary.replace(/\n/g, '<br>')}</div>`;
+      html += `<div class='modal-label'>Grading Result</div>`;
+      html += `<div class='modal-grading'>Similarity Percentage: ${s.grading.percent_sim.toFixed(2)}%<br>Response Category: ${s.grading.grade}<br>Final Grade (Scale 1–5): ${s.grading.value}</div>`;
+      if (s.summary_file) {
+        html += `<a class='modal-download' href='/uploads/${s.summary_file}' download>Download Ringkasan (.docx/.pdf)</a>`;
+      }
+      html += `</div>`;
+      document.getElementById('modalContent').innerHTML = html;
       document.getElementById('modalBg').classList.add('active');
     }
     function closeModal() {
       document.getElementById('modalBg').classList.remove('active');
     }
-    // Optional: Close modal on ESC key
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape') closeModal();
     });

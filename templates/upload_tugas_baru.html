@@ -38,21 +38,29 @@
       margin: 0;
     }
     .nav li {
-      display: flex;
-      align-items: center;
+      display: block;
       padding: 0 0 0 32px;
       height: 48px;
       cursor: pointer;
       font-size: 1.1rem;
       transition: background 0.2s;
-    }
-    .nav li.active, .nav li:hover {
-      background: #ff4d4f;
       color: #fff;
     }
-    .nav li .icon {
-      margin-right: 16px;
-      font-size: 1.2em;
+    .nav li.active {
+      font-weight: bold;
+      color: #fff;
+      background: none;
+    }
+    .nav li a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      height: 100%;
+      line-height: 48px;
+    }
+    .nav li a:hover {
+      text-decoration: underline;
     }
     .sidebar .bottom {
       margin-bottom: 32px;
@@ -228,14 +236,16 @@
       <div class="top">
         <h2>Automatic Assesment</h2>
         <ul class="nav">
-          <li><span class="icon">🏠</span>Dashboard</li>
-          <li class="active"><span class="icon">⬆️</span>Upload Tugas Baru</li>
-          <li><span class="icon">📄</span>Hasil Ringkasan</li>
-          <li><span class="icon">📊</span>Statistika Processing</li>
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li class="active"><a href="/upload">Upload Tugas Baru</a></li>
+          <li><a href="/history">Hasil Ringkasan</a></li>
+          <li><a href="/statistic">Statistika Processing</a></li>
         </ul>
       </div>
       <div class="bottom">
-        <button class="logout-btn"><span class="icon">⏻</span>Logout</button>
+        <form method="POST" action="/logout">
+          <button class="logout-btn" type="submit"><span class="icon">⏻</span>Logout</button>
+        </form>
       </div>
     </aside>
     <main class="main">
@@ -243,36 +253,81 @@
         <span class="header-title">Upload Tugas Baru</span>
         <div class="user-info">
           <div class="user-avatar">👤</div>
-          <span class="user-name">Nama Pengguna</span>
+          <span class="user-name">{{ user_name }}</span>
         </div>
       </div>
       <div class="main-content">
-        <form>
+        <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
           <div class="form-group">
             <label class="form-label" for="nama-tugas">Nama Matkul/Tugas</label>
             <input class="form-input" type="text" id="nama-tugas" name="nama-tugas" placeholder="Masukkan nama matkul atau tugas" required>
           </div>
           <div class="upload-section">
-            <label class="upload-label">Tugas Mahasiswa</label>
             <div class="upload-boxes">
-              <label class="upload-box" tabindex="0">
+              <label class="upload-box" tabindex="0" id="studentUploadBox">
                 <span class="upload-icon">⬆️</span>
-                <span class="upload-title">Upload files</span>
-                <span class="upload-desc">or drag and drop</span>
-                <input type="file" name="tugas-mahasiswa" multiple style="display:none">
+                <span class="upload-title">Upload Files</span>
+                <span class="upload-desc" id="studentUploadDesc">*Support .docx dan .pdf*</span>
+                <input type="file" name="tugas-mahasiswa" accept=".docx,.pdf" multiple style="display:none" required id="studentFileInput">
               </label>
-              <label class="upload-box" tabindex="0">
+              <label class="upload-box" tabindex="0" id="summaryUploadBox">
                 <span class="upload-icon">⬆️</span>
-                <span class="upload-title">Kunci Jawaban</span>
-                <span class="upload-desc">or drag and drop</span>
-                <input type="file" name="kunci-jawaban" style="display:none">
+                <span class="upload-title">Upload Files</span>
+                <span class="upload-desc" id="summaryUploadDesc">*Support .docx dan .pdf*<br><span style='font-size:0.95em;color:#888;'>(Optional untuk evaluasi)</span></span>
+                <input type="file" name="ringkasan-mahasiswa" accept=".docx,.pdf" multiple style="display:none" id="summaryFileInput">
               </label>
             </div>
           </div>
+          <div class="form-group">
+            <label class="form-label" for="kunci-jawaban">Kunci Jawaban</label>
+            <input class="form-input" type="text" id="kunci-jawaban" name="kunci-jawaban" placeholder="Masukkan kunci jawaban" required>
+          </div>
           <button type="submit" class="submit-btn">Submit</button>
         </form>
+        <!-- Modal for feedback -->
+        <div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:9999;align-items:center;justify-content:center;">
+          <div style="background:#fff;padding:36px 32px 24px 32px;border-radius:16px;max-width:350px;width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.18);font-size:1.2rem;">
+            <span id="feedbackMessage">Uploading...</span>
+          </div>
+        </div>
       </div>
     </main>
   </div>
+  <script>
+  // File input feedback
+  function updateUploadBox(inputId, boxId, descId) {
+    const input = document.getElementById(inputId);
+    const box = document.getElementById(boxId);
+    const desc = document.getElementById(descId);
+    input.addEventListener('change', function() {
+      if (input.files.length > 0) {
+        let names = Array.from(input.files).map(f => f.name).join(', ');
+        desc.innerHTML = `<b>${input.files.length} file(s) dipilih:</b><br>${names}`;
+        box.style.border = '2px solid #ff4d4f';
+        box.style.background = '#ffeaea';
+      } else {
+        desc.innerHTML = boxId === 'studentUploadBox' ? '*Support .docx dan .pdf*' : '*Support .docx dan .pdf*<br><span style="font-size:0.95em;color:#888;">(Optional untuk evaluasi)</span>';
+        box.style.border = '2px dashed #e0e0e0';
+        box.style.background = '#fff';
+      }
+    });
+    // Click on box triggers file input
+    box.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'INPUT') input.click();
+    });
+  }
+  updateUploadBox('studentFileInput', 'studentUploadBox', 'studentUploadDesc');
+  updateUploadBox('summaryFileInput', 'summaryUploadBox', 'summaryUploadDesc');
+
+  // Modal feedback and redirect
+  const uploadForm = document.getElementById('uploadForm');
+  const feedbackModal = document.getElementById('feedbackModal');
+  const feedbackMessage = document.getElementById('feedbackMessage');
+  uploadForm.addEventListener('submit', function(e) {
+    feedbackMessage.textContent = 'Uploading...';
+    feedbackModal.style.display = 'flex';
+  });
+  // On successful upload, backend should redirect to /history. To show a success message before redirect, use a flash message on /history or use JS to delay redirect (AJAX). For now, modal will show until redirect.
+  </script>
 </body>
 </html> 

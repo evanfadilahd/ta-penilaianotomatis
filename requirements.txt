@@ -1,0 +1,9 @@
+python-docx==0.8.11
+transformers==4.36.2
+scikit-learn==1.4.0
+numpy==1.26.3
+torch==2.2.0
+rouge-score==0.1.2
+flask==3.0.2
+werkzeug==3.0.1
+pdfplumber==0.10.3 

@@ -38,21 +38,29 @@
       margin: 0;
     }
     .nav li {
-      display: flex;
-      align-items: center;
+      display: block;
       padding: 0 0 0 32px;
       height: 48px;
       cursor: pointer;
       font-size: 1.1rem;
       transition: background 0.2s;
-    }
-    .nav li.active, .nav li:hover {
-      background: #ff4d4f;
       color: #fff;
     }
-    .nav li .icon {
-      margin-right: 16px;
-      font-size: 1.2em;
+    .nav li.active {
+      font-weight: bold;
+      color: #fff;
+      background: none;
+    }
+    .nav li a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      height: 100%;
+      line-height: 48px;
+    }
+    .nav li a:hover {
+      text-decoration: underline;
     }
     .sidebar .bottom {
       margin-bottom: 32px;
@@ -207,14 +215,16 @@
       <div class="top">
         <h2>Automatic Assesment</h2>
         <ul class="nav">
-          <li class="active"><span class="icon">🏠</span>Dashboard</li>
-          <li><span class="icon">⬆️</span>Upload Tugas Baru</li>
-          <li><span class="icon">📄</span>Hasil Ringkasan</li>
-          <li><span class="icon">📊</span>Statistika Processing</li>
+          <li class="active"><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/upload">Upload Tugas Baru</a></li>
+          <li><a href="/history">Hasil Ringkasan</a></li>
+          <li><a href="/statistic">Statistika Processing</a></li>
         </ul>
       </div>
       <div class="bottom">
-        <button class="logout-btn"><span class="icon">⏻</span>Logout</button>
+        <form method="POST" action="/logout">
+          <button class="logout-btn" type="submit"><span class="icon">⏻</span>Logout</button>
+        </form>
       </div>
     </aside>
     <main class="main">
@@ -222,7 +232,7 @@
         <span class="header-title">Dashboard Page</span>
         <div class="user-info">
           <div class="user-avatar">👤</div>
-          <span class="user-name">Nama Pengguna</span>
+          <span class="user-name">{{ user_name }}</span>
         </div>
       </div>
       <div class="main-content">
